@@ -1,6 +1,7 @@
 import Hero from "@/components/Hero";
 import NavBar from "@/components/NavBar";
 import ProductViewer from "@/components/ProductViewer";
+import Showcase from "@/components/Showcase";
 import Image from "next/image";
 
 export default function Home() {
@@ -9,6 +10,7 @@ export default function Home() {
       <NavBar />
       <Hero />
       <ProductViewer />
+      <Showcase />
     </main>
   );
 }

@@ -3,21 +3,25 @@
 @font-face {
   font-family: "Regular";
   src: url("/fonts/regular.otf");
+  font-display: swap;
 }
 
 @font-face {
   font-family: "Medium";
   src: url("/fonts/medium.otf");
+  font-display: swap;
 }
 
 @font-face {
   font-family: "SemiBold";
   src: url("/fonts/semibold.otf");
+  font-display: swap;
 }
 
 @font-face {
   font-family: "Bold";
   src: url("/fonts/bold.otf");
+  font-display: swap;
 }
 
 * {
