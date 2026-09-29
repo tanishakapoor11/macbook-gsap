@@ -8,19 +8,72 @@ Source: https://sketchfab.com/3d-models/macbook-pro-m3-16-inch-2024-8e34fc2b3031
 Title: macbook pro M3 16 inch 2024
 */
 
-import type * as THREE from "three";
+import * as THREE from "three";
 import type { ThreeElements } from "@react-three/fiber";
-import { useGLTF, useTexture } from "@react-three/drei";
+import { useGLTF } from "@react-three/drei";
+import { useMacbookStore } from "@/store";
+import { useEffect } from "react";
+import { noChangeParts } from "@/constants";
+
+// One <video> + VideoTexture per path, created once and reused. Unlike drei's
+// useVideoTexture this never suspends, so switching screens can't trigger the
+// Suspense fallback, and preloading (same cache) actually warms what we render.
+const videoTextures = new Map<string, THREE.VideoTexture>();
+
+export function getVideoTexture(src: string) {
+  let texture = videoTextures.get(src);
+  if (!texture) {
+    const video = document.createElement("video");
+    Object.assign(video, {
+      src,
+      muted: true,
+      loop: true,
+      playsInline: true,
+      preload: "auto",
+      crossOrigin: "anonymous",
+    });
+    texture = new THREE.VideoTexture(video);
+    texture.colorSpace = THREE.SRGBColorSpace;
+    videoTextures.set(src, texture);
+  }
+  return texture;
+}
+
+// Only the visible screen decodes; it restarts so each feature's clip plays
+// from the top. Returns a cleanup that pauses it again.
+function playOnly(src: string) {
+  const current = getVideoTexture(src).image as HTMLVideoElement;
+  videoTextures.forEach(({ image }) => {
+    if (image !== current) (image as HTMLVideoElement).pause();
+  });
+  current.currentTime = 0;
+  current.play().catch(() => {});
+  return () => current.pause();
+}
 
 type GLTFResult = {
   nodes: Record<string, THREE.Mesh>;
   materials: Record<string, THREE.Material>;
+  scene: THREE.Group;
 };
 
 export function MacbookModel(props: ThreeElements["group"]) {
-  const { nodes, materials } = useGLTF("/models/macbook-transformed.glb") as unknown as GLTFResult;
+  const { color, texture } = useMacbookStore();
+  const { nodes, materials, scene } = useGLTF(
+    "/models/macbook-transformed.glb",
+  ) as unknown as GLTFResult;
+  const screen = getVideoTexture(texture);
 
-  const texture = useTexture("/screen.png");
+  useEffect(() => playOnly(texture), [texture]);
+
+  useEffect(() => {
+    scene.traverse((child) => {
+      const mesh = child as THREE.Mesh<THREE.BufferGeometry, THREE.MeshStandardMaterial>;
+      if (mesh.isMesh && !noChangeParts.includes(mesh.name)) {
+        mesh.material.color.set(color);
+      }
+    });
+  }, [color, scene]);
 
   return (
     <group {...props} dispose={null}>
@@ -114,7 +167,7 @@ export function MacbookModel(props: ThreeElements["group"]) {
         material={materials.sfCQkHOWyrsLmor}
         rotation={[Math.PI / 2, 0, 0]}
       >
-        <meshBasicMaterial map={texture} />
+        <meshBasicMaterial map={screen} toneMapped={false} />
       </mesh>
       <mesh
         geometry={nodes.Object_127.geometry}

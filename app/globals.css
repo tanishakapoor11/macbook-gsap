@@ -288,12 +288,26 @@ body {
       @apply text-white font-semibold text-3xl lg:text-7xl text-center max-w-3xl mx-auto;
     }
 
+    /* Canvas + copy pinned as one unit, so box positions are % of the viewport */
+    .stage {
+      @apply relative h-dvh;
+    }
+
     #f-canvas {
       @apply !w-full !h-dvh relative z-40;
     }
 
+    .boxes {
+      @apply absolute inset-0 z-50 pointer-events-none;
+    }
+
     .box {
-      @apply max-w-xs absolute;
+      /* Below lg the model fills the middle, so boxes share one slot under it and swap in turn */
+      @apply max-w-xs absolute max-lg:top-auto max-lg:bottom-10 max-lg:inset-x-5 max-lg:max-w-none max-lg:text-center;
+
+      img {
+        @apply mb-3 max-lg:mx-auto;
+      }
 
       p {
         @apply lg:h3-semibold base-semibold;
