@@ -9,6 +9,15 @@ import { useGSAP } from "@gsap/react";
 const ANIMATION_DURATION = 1;
 const OFFSET_DISTANCE = 5;
 
+const controlsConfig = {
+  snap: true,
+  speed: 1,
+  zoom: 1,
+  polar: [-Math.PI, Math.PI] as [number, number],
+  azimuth: [-Infinity, Infinity] as [number, number],
+  config: { mass: 1, tension: 0, friction: 26 },
+};
+
 // Slides + fades a model in or out. The hidden one is set invisible once the
 // fade ends so it stops rendering and can't grab drags from the visible one.
 const animateModel = (
@@ -77,14 +86,6 @@ const ModelSwitcher = ({
     );
   }, [showLargeMacbook]);
 
-  const controlsConfig = {
-    snap: true,
-    speed: 1,
-    zoom: 1,
-    polar: [-Math.PI, Math.PI] as [number, number],
-    azimuth: [-Infinity, Infinity] as [number, number],
-    config: { mass: 1, tension: 0, friction: 26 },
-  };
   return (
     <>
       <PresentationControls {...controlsConfig}>
