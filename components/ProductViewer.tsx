@@ -1,30 +1,30 @@
 "use client";
 
 import { useMacbookStore } from "@/store";
-import { Box, OrbitControls } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
-import MacbookModel14 from "@/components/models/Macbook-14";
-import { MacbookModel16 } from "@/components/models/Macbook-16";
 import clsx from "clsx";
 import React from "react";
-import StudioLights from "./StudioLights";
+import StudioLights from "./three/StudioLights";
+import ModelSwitcher from "./three/ModelSwitcher";
+import { useMediaQuery } from "react-responsive";
 
 const ProductViewer = () => {
   const { color, scale, setColor, setScale } = useMacbookStore();
+  const isMobile = useMediaQuery({ query: "(max-width: 1024px)" });
   return (
     <section id="product-viewer">
       <h2>Take a closer look.</h2>
       <div className="controls">
         <p className="info">
-          MacBook Pro {scale}&quot; in {color}
+          MacBook Pro | Available in {scale === 0.06 ? 14 : 16}&quot; in {color === '#2e2c2e' ? 'Space Black' : 'Silver' + " color"}
         </p>
         <div className="flex-center gap-5 mt-5">
           <div className="color-control">
             <div
-              onClick={() => setColor("#adb5db")}
+              onClick={() => setColor("#adb5bd")}
               className={clsx(
                 "bg-neutral-300",
-                color === "#adb5db" && "active",
+                color === "#adb5bd" && "active",
               )}
             />
             <div
@@ -61,15 +61,10 @@ const ProductViewer = () => {
       </div>
       <Canvas
         id="canvas"
-        camera={{ position: [0, 2, 5], fov: 50, near: 0.1, far: 100 }}
+        camera={{ position: [0, 2, 8], fov: 35, near: 0.1, far: 100 }}
       >
         <StudioLights />
-        {scale === 0.06 ? (
-          <MacbookModel14 scale={0.06} position={[-1, 0, 0]} />
-        ) : (
-          <MacbookModel16 scale={0.08} position={[-1, 0, 0]} />
-        )}
-        <OrbitControls enableZoom={false} />
+        <ModelSwitcher scale={scale} isMobile={isMobile} />
       </Canvas>
     </section>
   );

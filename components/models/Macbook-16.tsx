@@ -11,16 +11,30 @@ Title: macbook pro M3 16 inch 2024
 import type * as THREE from "three";
 import type { ThreeElements } from "@react-three/fiber";
 import { useGLTF, useTexture } from "@react-three/drei";
+import { useEffect } from "react";
+import { useMacbookStore } from "@/store";
+import { noChangeParts } from "@/constants";
 
 type GLTFResult = {
   nodes: Record<string, THREE.Mesh>;
   materials: Record<string, THREE.Material>;
+  scene: THREE.Group;
 };
 
 export function MacbookModel16(props: ThreeElements["group"]) {
-  const { nodes, materials } = useGLTF("/models/macbook-16-transformed.glb") as unknown as GLTFResult;
+  const { color } = useMacbookStore();
+  const { nodes, materials, scene } = useGLTF("/models/macbook-16-transformed.glb") as unknown as GLTFResult;
 
   const texture = useTexture("/screen.png");
+
+  useEffect(() => {
+    scene.traverse((child) => {
+      const mesh = child as THREE.Mesh<THREE.BufferGeometry, THREE.MeshStandardMaterial>;
+      if (mesh.isMesh && !noChangeParts.includes(mesh.name)) {
+        mesh.material.color.set(color);
+      }
+    });
+  }, [color, scene]);
 
   return (
     <group {...props} dispose={null}>
