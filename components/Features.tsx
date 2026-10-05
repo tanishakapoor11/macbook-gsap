@@ -110,7 +110,11 @@ const ModelScroll = () => {
           </Html>
         }
       >
-        <MacbookModel scale={isMobile ? 0.05 : 0.08} position={[0, -1, 0]} />
+        <MacbookModel
+          scale={isMobile ? 0.065 : 0.08}
+          // Mobile: copy sits under the model, so lift it into the space above
+          position={[0, isMobile ? -0.2 : -1, 0]}
+        />
       </Suspense>
     </group>
   );
